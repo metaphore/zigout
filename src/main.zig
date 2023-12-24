@@ -2,7 +2,7 @@ const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
 const assert = @import("std").debug.assert;
-const math = @import("zlm");
+// const math = @import("zlm");
 
 const WINDOW_WIDTH = 800;
 const WINDOW_HEIGHT = 640;
@@ -35,6 +35,15 @@ pub fn main() !void {
     var xDir: f32 = 1.0;
     var yDir: f32 = 1.0;
 
+    // var proj_pos = math.Vec2{
+    //     .x = 32.0,
+    //     .y = 32.0,
+    // };
+    // var proj_dir = math.Vec2{
+    //     .x = 1.0,
+    //     .y = 0.0,
+    // };
+
     var quit = false;
     while (!quit) {
         var event: c.SDL_Event = undefined;
@@ -49,17 +58,23 @@ pub fn main() !void {
 
         if (x <= 0) {
             xDir = 1;
+            // proj_dir.x = 1;
         } else if (x + PROJ_SIZE >= WINDOW_WIDTH) {
             xDir = -1;
+            // proj_dir.x = -1;
         }
         if (y <= 0) {
             yDir = 1;
+            // proj_dir.y = 1;
         } else if (y + PROJ_SIZE >= WINDOW_HEIGHT) {
             yDir = -1;
+            // proj_dir.y = -1;
         }
 
         x += DELTA_TIME * PROJ_SPEED * xDir;
         y += DELTA_TIME * PROJ_SPEED * yDir;
+        // proj_pos.x = DELTA_TIME * PROJ_SPEED * proj_dir.x;
+        // proj_pos.y = DELTA_TIME * PROJ_SPEED * proj_dir.y;
 
         _ = c.SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x40, 0xff);
         _ = c.SDL_RenderClear(renderer);

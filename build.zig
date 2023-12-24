@@ -23,6 +23,12 @@ pub fn build(b: *Builder) void {
         exe.linkLibrary(sdl_dep.artifact("SDL2"));
     }
 
+    // const zlm = b.dependency("zlm", .{
+    //     .target = target,
+    //     .optimize = optimize,
+    // });
+    // exe.linkLibrary(zlm.artifact(.{}));
+
     b.installArtifact(exe);
 
     const run = b.step("run", "Run the demo");
