@@ -1,8 +1,9 @@
 const c = @cImport({
     @cInclude("SDL2/SDL.h");
 });
+const log = @import("std").log;
 const assert = @import("std").debug.assert;
-// const math = @import("zlm");
+const math = @import("zlm/zlm.zig");
 
 const WINDOW_WIDTH = 800;
 const WINDOW_HEIGHT = 640;
@@ -30,19 +31,15 @@ pub fn main() !void {
     };
     defer c.SDL_DestroyRenderer(renderer);
 
-    var x: f32 = 32.0;
-    var y: f32 = 32.0;
-    var xDir: f32 = 1.0;
-    var yDir: f32 = 1.0;
-
-    // var proj_pos = math.Vec2{
-    //     .x = 32.0,
-    //     .y = 32.0,
-    // };
-    // var proj_dir = math.Vec2{
-    //     .x = 1.0,
-    //     .y = 0.0,
-    // };
+    var proj_pos = math.Vec2{
+        .x = 32.0,
+        .y = 32.0,
+    };
+    var proj_dir = math.Vec2{
+        .x = 1.0,
+        .y = 0.0,
+    };
+    proj_dir = proj_dir.rotate(30.0);
 
     var quit = false;
     while (!quit) {
@@ -56,32 +53,24 @@ pub fn main() !void {
             }
         }
 
-        if (x <= 0) {
-            xDir = 1;
-            // proj_dir.x = 1;
-        } else if (x + PROJ_SIZE >= WINDOW_WIDTH) {
-            xDir = -1;
-            // proj_dir.x = -1;
+        if (proj_pos.x <= 0 or (proj_pos.x + PROJ_SIZE >= WINDOW_WIDTH)) {
+            proj_dir.x = -proj_dir.x;
         }
-        if (y <= 0) {
-            yDir = 1;
-            // proj_dir.y = 1;
-        } else if (y + PROJ_SIZE >= WINDOW_HEIGHT) {
-            yDir = -1;
-            // proj_dir.y = -1;
+        if (proj_pos.y <= 0 or (proj_pos.y + PROJ_SIZE >= WINDOW_HEIGHT)) {
+            proj_dir.y = -proj_dir.y;
         }
 
-        x += DELTA_TIME * PROJ_SPEED * xDir;
-        y += DELTA_TIME * PROJ_SPEED * yDir;
-        // proj_pos.x = DELTA_TIME * PROJ_SPEED * proj_dir.x;
-        // proj_pos.y = DELTA_TIME * PROJ_SPEED * proj_dir.y;
+        proj_pos.x += DELTA_TIME * PROJ_SPEED * proj_dir.x;
+        proj_pos.y += DELTA_TIME * PROJ_SPEED * proj_dir.y;
+        // log.debug("proj_pos is [{d}, {d}]", .{ proj_pos.x, proj_pos.y });
+        // log.debug("proj_dir is [{d}, {d}]", .{ proj_dir.x, proj_dir.y });
 
         _ = c.SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x40, 0xff);
         _ = c.SDL_RenderClear(renderer);
 
         const rect = c.SDL_Rect{
-            .x = @intFromFloat(x),
-            .y = @intFromFloat(y),
+            .x = @intFromFloat(proj_pos.x),
+            .y = @intFromFloat(proj_pos.y),
             .w = PROJ_SIZE,
             .h = PROJ_SIZE,
         };

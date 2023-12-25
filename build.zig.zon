@@ -1,0 +1,11 @@
+.{
+	.name = "sdl-test0",
+	.version = "0.0.0",
+	.paths = .{""},
+	// .dependencies = .{
+	// 	.zlm = .{
+	// 		.url = "https://github.com/metaphore/zlm/archive/master.tar.gz",
+	// 		.hash = "1220c71e72c7e84f636925d0ab92e337c508ebf33c09ce5bda3f525aa309b8f2461a",
+	// 	},
+	// },
+}

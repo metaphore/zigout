@@ -27,7 +27,8 @@ pub fn build(b: *Builder) void {
     //     .target = target,
     //     .optimize = optimize,
     // });
-    // exe.linkLibrary(zlm.artifact(.{}));
+    // exe.addModule("zlm", zlm.module("zlm"));
+    // exe.linkLibrary(zlm.artifact("zlm"));
 
     b.installArtifact(exe);
 
