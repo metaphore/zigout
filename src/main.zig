@@ -4,6 +4,7 @@ const c = @cImport({
 const math = @import("std").math;
 const log = @import("std").log;
 const assert = @import("std").debug.assert;
+const sod = @import("sod.zig");
 const zlm = @import("zlm/zlm.zig");
 
 const WINDOW_WIDTH: i32 = 800;
@@ -48,6 +49,8 @@ pub fn main() !void {
     proj_dir = proj_dir.rotate(30.0);
 
     var bar_x: f32 = @floatFromInt(WINDOW_WIDTH / 2);
+    var bar_pos_sod = sod.Sod2D(f32).init(2.0, 0.6, 0.0);
+    bar_pos_sod.reset(bar_x, BAR_Y);
 
     var input_left = false;
     var input_right = false;
@@ -95,6 +98,7 @@ pub fn main() !void {
         }
         bar_x += bar_dir_x * BAR_SPEED * DELTA_TIME;
         bar_x = math.clamp(bar_x, BAR_HSIZE.x, @as(f32, WINDOW_WIDTH) - BAR_HSIZE.x);
+        bar_pos_sod.update(DELTA_TIME, bar_x, BAR_Y);
 
         if (proj_pos.x - PROJ_HSIZE <= 0 or (proj_pos.x + PROJ_HSIZE >= WINDOW_WIDTH)) {
             proj_dir.x = -proj_dir.x;
@@ -103,11 +107,17 @@ pub fn main() !void {
             proj_dir.y = -proj_dir.y;
         }
 
-        const proj_dst_to_bar_h: f32 = BAR_Y - (proj_pos.y + PROJ_HSIZE);
+        // Check platform hit.
+        const proj_dst_to_bar_h: f32 = bar_pos_sod.pos_y - (proj_pos.y + PROJ_HSIZE);
         if (proj_dir.y > 0 and
             (proj_dst_to_bar_h > -BAR_HSIZE.y and proj_dst_to_bar_h < BAR_HSIZE.y) and
-            (proj_pos.x + PROJ_HSIZE > bar_x - BAR_HSIZE.x and proj_pos.x - PROJ_HSIZE < bar_x + BAR_HSIZE.x))
+            (proj_pos.x + PROJ_HSIZE > bar_pos_sod.pos_x - BAR_HSIZE.x and proj_pos.x - PROJ_HSIZE < bar_pos_sod.pos_x + BAR_HSIZE.x))
         {
+            // Add a little hit feedback to the platform.
+            const feedback: f32 = 640;
+            bar_pos_sod.acc_x += feedback * proj_dir.x;
+            bar_pos_sod.acc_y += feedback * proj_dir.y;
+
             proj_dir.y = -proj_dir.y;
         }
 
@@ -116,6 +126,7 @@ pub fn main() !void {
         // log.debug("proj_pos is [{d}, {d}]", .{ proj_pos.x, proj_pos.y });
         // log.debug("proj_dir is [{d}, {d}]", .{ proj_dir.x, proj_dir.y });
 
+        // RENDER ===========================================================================
         _ = c.SDL_SetRenderDrawColor(renderer, 0x20, 0x20, 0x40, 0xff);
         _ = c.SDL_RenderClear(renderer);
 
@@ -129,8 +140,8 @@ pub fn main() !void {
         _ = c.SDL_RenderFillRect(renderer, &proj_rect);
 
         const bar_rect = c.SDL_Rect{
-            .x = roundInt(bar_x - BAR_HSIZE.x),
-            .y = roundInt(BAR_Y - BAR_HSIZE.y),
+            .x = roundInt(bar_pos_sod.pos_x - BAR_HSIZE.x),
+            .y = roundInt(bar_pos_sod.pos_y - BAR_HSIZE.y),
             .w = BAR_SIZE.x,
             .h = BAR_SIZE.y,
         };
