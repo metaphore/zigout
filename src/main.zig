@@ -33,7 +33,7 @@ const InputState = struct {
     left: bool,
     right: bool,
 };
-var input = InputState {
+var input = InputState{
     .left = false,
     .right = false,
 };
@@ -69,6 +69,9 @@ pub fn main() !void {
                 },
                 c.SDL_KEYDOWN => {
                     switch (event.key.keysym.sym) {
+                        c.SDLK_q => {
+                            quit = true;
+                        },
                         c.SDLK_a => {
                             input.left = true;
                         },
